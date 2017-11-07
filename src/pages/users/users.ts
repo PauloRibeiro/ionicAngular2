@@ -13,14 +13,27 @@ import { GithubUsers } from '../../providers/github-users/github-users';
 
 export class UsersPage {
   users: User[]
+  originalUsers: User[];
 
   constructor(public navCtrl: NavController, private githubUsers: GithubUsers) {
     githubUsers.load().subscribe(users => {
       this.users = users;
+      this.originalUsers = users;
     })
   }
 
   goToDetails(login: string) {
     this.navCtrl.push(UserDetailsPage, {login});
+  }
+
+  search(searchEvent) {
+    let term = searchEvent.target.value
+    if(term.trim() === '' || term.trim().length < 3) {
+      this.users = this.originalUsers;
+    } else {
+      this.githubUsers.searchUsers(term).subscribe(users => {
+        this.users = users
+      });
+    }
   }
 }
